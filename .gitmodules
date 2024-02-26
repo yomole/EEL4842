@@ -1,0 +1,6 @@
+[submodule "av1tenth"]
+	path = av1tenth
+	url = https://github.com/av-mae-uf/av1tenth
+[submodule "av1tenth-docs"]
+	path = av1tenth-docs
+	url = https://github.com/av-mae-uf/av1tenth-docs
