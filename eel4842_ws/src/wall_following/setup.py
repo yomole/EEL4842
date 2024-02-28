@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-                'map_joy = wall_following.map_joy_to_ack:main',
+                'wall_follow = wall_following.wall_follow:main',
         ],
     },
 )

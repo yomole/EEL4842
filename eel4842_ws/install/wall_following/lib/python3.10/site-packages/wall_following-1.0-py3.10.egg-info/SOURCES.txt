@@ -13,4 +13,4 @@ test/test_copyright.py
 test/test_flake8.py
 test/test_pep257.py
 wall_following/__init__.py
-wall_following/map_joy_to_ack.py
+wall_following/wall_follow.py
