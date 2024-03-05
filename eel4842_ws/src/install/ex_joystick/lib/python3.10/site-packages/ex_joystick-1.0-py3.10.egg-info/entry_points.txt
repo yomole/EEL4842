@@ -1,0 +1,3 @@
+[console_scripts]
+map_joy = ex_joystick.map_joy_to_ack:main
+

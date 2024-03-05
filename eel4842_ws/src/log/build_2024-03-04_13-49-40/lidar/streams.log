@@ -1,0 +1,21 @@
+[2.305s] Invoking command in '/home/molyo/EEL4842/eel4842_ws/src/lidar': BYOBU_DATE=%Y-%m-%d PYTHONPATH=/home/molyo/EEL4842/eel4842_ws/src/build/lidar/prefix_override:/home/molyo/EEL4842/eel4842_ws/src/install/lidar/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../build/lidar build --build-base /home/molyo/EEL4842/eel4842_ws/src/build/lidar/build install --record /home/molyo/EEL4842/eel4842_ws/src/build/lidar/install.log --single-version-externally-managed
+[2.634s] running egg_info
+[2.635s] writing ../build/lidar/lidar.egg-info/PKG-INFO
+[2.635s] writing dependency_links to ../build/lidar/lidar.egg-info/dependency_links.txt
+[2.635s] writing entry points to ../build/lidar/lidar.egg-info/entry_points.txt
+[2.635s] writing requirements to ../build/lidar/lidar.egg-info/requires.txt
+[2.635s] writing top-level names to ../build/lidar/lidar.egg-info/top_level.txt
+[2.637s] reading manifest file '../build/lidar/lidar.egg-info/SOURCES.txt'
+[2.638s] writing manifest file '../build/lidar/lidar.egg-info/SOURCES.txt'
+[2.638s] running build
+[2.638s] running build_py
+[2.639s] running install
+[2.639s] running install_lib
+[2.640s] running install_data
+[2.641s] running install_egg_info
+[2.643s] removing '/home/molyo/EEL4842/eel4842_ws/src/install/lidar/lib/python3.10/site-packages/lidar-1.0-py3.10.egg-info' (and everything under it)
+[2.643s] Copying ../build/lidar/lidar.egg-info to /home/molyo/EEL4842/eel4842_ws/src/install/lidar/lib/python3.10/site-packages/lidar-1.0-py3.10.egg-info
+[2.645s] running install_scripts
+[2.667s] Installing lidar_pointcloud script to /home/molyo/EEL4842/eel4842_ws/src/install/lidar/lib/lidar
+[2.668s] writing list of installed files to '/home/molyo/EEL4842/eel4842_ws/src/build/lidar/install.log'
+[2.699s] Invoked command in '/home/molyo/EEL4842/eel4842_ws/src/lidar' returned '0': BYOBU_DATE=%Y-%m-%d PYTHONPATH=/home/molyo/EEL4842/eel4842_ws/src/build/lidar/prefix_override:/home/molyo/EEL4842/eel4842_ws/src/install/lidar/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../build/lidar build --build-base /home/molyo/EEL4842/eel4842_ws/src/build/lidar/build install --record /home/molyo/EEL4842/eel4842_ws/src/build/lidar/install.log --single-version-externally-managed
