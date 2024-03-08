@@ -6,6 +6,7 @@ from rclpy.clock import Clock
 
 from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Float32
 from ackermann_msgs.msg import AckermannDriveStamped
 from sensor_msgs.msg import Joy
 from sensor_msgs.msg import LaserScan
@@ -19,12 +20,20 @@ class JoyToAckNode(Node):
         self.subJoy = self.create_subscription(Joy, 'joy', self.joy_callback, 10)
         self.subLidar = self.create_subscription(LaserScan, 'scan', self.lidar_callback, 10)
         self.publisher_ = self.create_publisher(AckermannDriveStamped, 'vehicle_command_ackermann', 10)
+        self.publish_error = self.create_publisher(Float32, 'error', 10)
+        self.publish_pval = self.create_publisher(Float32, 'pval', 10)
+        self.publish_ival = self.create_publisher(Float32, 'ival', 10)
+        self.publish_dval = self.create_publisher(Float32, 'dval', 10)
+        self.publish_uk = self.create_publisher(Float32, 'uk', 10)
+        self.publish_diff_uk = self.create_publisher(Float32, 'diff_uk', 10)
 
+        #Declare parameters for use with launch file.
         self.declare_parameter('kd', 0.0)
         self.declare_parameter('ki', 0.0)
         self.declare_parameter('kp', 1.0)
         self.declare_parameter('history', 45)
         self.declare_parameter('beam_angle', 10)
+        self.declare_parameter('deadband', 0)
 
         self.prev_errors = [0 for i in range(self.get_parameter('history').value)]
         self.curr_error_index = 0
@@ -45,6 +54,7 @@ class JoyToAckNode(Node):
         ki = self.get_parameter('ki').value
         kp = self.get_parameter('kp').value
         beam_angle = self.get_parameter('beam_angle').value
+        deadband = self.get_parameter('deadband').value
         
         #Get the PID storage history
         history = self.get_parameter('history').value
@@ -89,13 +99,36 @@ class JoyToAckNode(Node):
         self.curr_error_index += 1
 
         #Calculate the control input.
-        self.uk = (kp * e) + (ki * sum_ek * dt) + (kd * ((e - self.ek_prev)/dt))
+        pval = (kp * e)
+        ival = (ki * sum_ek * dt)
+        dval = (kd * ((e - self.ek_prev)/dt))
+        self.uk = pval + ival + dval
         self.ek_prev = e
+
+        #Publish PID Values for use with rqt graphing
+        temp = Float32()
+        temp.data = e
+        self.publish_error.publish(temp)
+
+        temp.data = self.uk
+        self.publish_uk.publish(temp)
+
+        temp.data = pval
+        self.publish_pval.publish(temp)
+
+        temp.data = ival
+        self.publish_ival.publish(temp)
+
+        temp.data = dval
+        self.publish_dval.publish(temp)
 
         #Calculate difference in control input if valid.
 
         if (self.prev_uk != None):
             self.diff_uk = self.uk - self.prev_uk
+            
+            temp.data = self.diff_uk
+            self.publish_diff_uk.publish(temp)
 
         self.prev_uk = self.uk
 
@@ -111,7 +144,12 @@ class JoyToAckNode(Node):
             return
 
         msg_send = AckermannDriveStamped()
-        msg_send.drive.steering_angle = -(math.pi/4) * self.uk   
+
+        if (abs(self.diff_uk - deadband) <= deadband):
+            msg_send.drive.steering_angle = -(math.pi/4) * self.diff_uk
+        else:
+            msg_send.drive.steering_angle = -(math.pi/4) * self.prev_uk
+            
     
         print(f'Steering angle: {msg_send.drive.steering_angle} radians ({msg_send.drive.steering_angle * (180 / math.pi)} degrees)')
 
