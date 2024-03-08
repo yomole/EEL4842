@@ -1,0 +1,5 @@
+  File "/home/molyo/EEL4842/eel4842_ws/install/wall_following/lib/python3.10/site-packages/wall_following/wall_follow.py", line 37
+    if (!self.autonomous):
+        ^
+SyntaxError: invalid syntax
+

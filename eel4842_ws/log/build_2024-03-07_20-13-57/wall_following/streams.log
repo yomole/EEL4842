@@ -1,0 +1,24 @@
+[3.996s] Invoking command in '/home/molyo/EEL4842/eel4842_ws/src/wall_following': BYOBU_DATE=%Y-%m-%d PYTHONPATH=/home/molyo/EEL4842/eel4842_ws/build/wall_following/prefix_override:/home/molyo/EEL4842/eel4842_ws/install/wall_following/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/wall_following build --build-base /home/molyo/EEL4842/eel4842_ws/build/wall_following/build install --record /home/molyo/EEL4842/eel4842_ws/build/wall_following/install.log --single-version-externally-managed
+[4.380s] running egg_info
+[4.381s] writing ../../build/wall_following/wall_following.egg-info/PKG-INFO
+[4.381s] writing dependency_links to ../../build/wall_following/wall_following.egg-info/dependency_links.txt
+[4.382s] writing entry points to ../../build/wall_following/wall_following.egg-info/entry_points.txt
+[4.382s] writing requirements to ../../build/wall_following/wall_following.egg-info/requires.txt
+[4.382s] writing top-level names to ../../build/wall_following/wall_following.egg-info/top_level.txt
+[4.383s] reading manifest file '../../build/wall_following/wall_following.egg-info/SOURCES.txt'
+[4.384s] writing manifest file '../../build/wall_following/wall_following.egg-info/SOURCES.txt'
+[4.384s] running build
+[4.385s] running build_py
+[4.385s] copying wall_following/wall_follow.py -> /home/molyo/EEL4842/eel4842_ws/build/wall_following/build/lib/wall_following
+[4.386s] running install
+[4.386s] running install_lib
+[4.386s] copying /home/molyo/EEL4842/eel4842_ws/build/wall_following/build/lib/wall_following/wall_follow.py -> /home/molyo/EEL4842/eel4842_ws/install/wall_following/lib/python3.10/site-packages/wall_following
+[4.387s] byte-compiling /home/molyo/EEL4842/eel4842_ws/install/wall_following/lib/python3.10/site-packages/wall_following/wall_follow.py to wall_follow.cpython-310.pyc
+[4.389s] running install_data
+[4.389s] running install_egg_info
+[4.391s] removing '/home/molyo/EEL4842/eel4842_ws/install/wall_following/lib/python3.10/site-packages/wall_following-1.0-py3.10.egg-info' (and everything under it)
+[4.392s] Copying ../../build/wall_following/wall_following.egg-info to /home/molyo/EEL4842/eel4842_ws/install/wall_following/lib/python3.10/site-packages/wall_following-1.0-py3.10.egg-info
+[4.393s] running install_scripts
+[4.416s] Installing wall_follow script to /home/molyo/EEL4842/eel4842_ws/install/wall_following/lib/wall_following
+[4.416s] writing list of installed files to '/home/molyo/EEL4842/eel4842_ws/build/wall_following/install.log'
+[4.451s] Invoked command in '/home/molyo/EEL4842/eel4842_ws/src/wall_following' returned '0': BYOBU_DATE=%Y-%m-%d PYTHONPATH=/home/molyo/EEL4842/eel4842_ws/build/wall_following/prefix_override:/home/molyo/EEL4842/eel4842_ws/install/wall_following/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/wall_following build --build-base /home/molyo/EEL4842/eel4842_ws/build/wall_following/build install --record /home/molyo/EEL4842/eel4842_ws/build/wall_following/install.log --single-version-externally-managed

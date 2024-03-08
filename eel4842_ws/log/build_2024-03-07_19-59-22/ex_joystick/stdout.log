@@ -1,0 +1,19 @@
+running egg_info
+writing ../../build/ex_joystick/ex_joystick.egg-info/PKG-INFO
+writing dependency_links to ../../build/ex_joystick/ex_joystick.egg-info/dependency_links.txt
+writing entry points to ../../build/ex_joystick/ex_joystick.egg-info/entry_points.txt
+writing requirements to ../../build/ex_joystick/ex_joystick.egg-info/requires.txt
+writing top-level names to ../../build/ex_joystick/ex_joystick.egg-info/top_level.txt
+reading manifest file '../../build/ex_joystick/ex_joystick.egg-info/SOURCES.txt'
+writing manifest file '../../build/ex_joystick/ex_joystick.egg-info/SOURCES.txt'
+running build
+running build_py
+running install
+running install_lib
+running install_data
+running install_egg_info
+removing '/home/molyo/EEL4842/eel4842_ws/install/ex_joystick/lib/python3.10/site-packages/ex_joystick-1.0-py3.10.egg-info' (and everything under it)
+Copying ../../build/ex_joystick/ex_joystick.egg-info to /home/molyo/EEL4842/eel4842_ws/install/ex_joystick/lib/python3.10/site-packages/ex_joystick-1.0-py3.10.egg-info
+running install_scripts
+Installing map_joy script to /home/molyo/EEL4842/eel4842_ws/install/ex_joystick/lib/ex_joystick
+writing list of installed files to '/home/molyo/EEL4842/eel4842_ws/build/ex_joystick/install.log'

@@ -1,0 +1,21 @@
+[3.727s] Invoking command in '/home/molyo/EEL4842/eel4842_ws/src/ex_joystick': BYOBU_DATE=%Y-%m-%d PYTHONPATH=/home/molyo/EEL4842/eel4842_ws/build/ex_joystick/prefix_override:/home/molyo/EEL4842/eel4842_ws/install/ex_joystick/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/ex_joystick build --build-base /home/molyo/EEL4842/eel4842_ws/build/ex_joystick/build install --record /home/molyo/EEL4842/eel4842_ws/build/ex_joystick/install.log --single-version-externally-managed
+[3.979s] running egg_info
+[3.979s] writing ../../build/ex_joystick/ex_joystick.egg-info/PKG-INFO
+[3.980s] writing dependency_links to ../../build/ex_joystick/ex_joystick.egg-info/dependency_links.txt
+[3.980s] writing entry points to ../../build/ex_joystick/ex_joystick.egg-info/entry_points.txt
+[3.980s] writing requirements to ../../build/ex_joystick/ex_joystick.egg-info/requires.txt
+[3.980s] writing top-level names to ../../build/ex_joystick/ex_joystick.egg-info/top_level.txt
+[3.982s] reading manifest file '../../build/ex_joystick/ex_joystick.egg-info/SOURCES.txt'
+[3.982s] writing manifest file '../../build/ex_joystick/ex_joystick.egg-info/SOURCES.txt'
+[3.982s] running build
+[3.982s] running build_py
+[3.983s] running install
+[3.983s] running install_lib
+[3.984s] running install_data
+[3.984s] running install_egg_info
+[3.986s] removing '/home/molyo/EEL4842/eel4842_ws/install/ex_joystick/lib/python3.10/site-packages/ex_joystick-1.0-py3.10.egg-info' (and everything under it)
+[3.986s] Copying ../../build/ex_joystick/ex_joystick.egg-info to /home/molyo/EEL4842/eel4842_ws/install/ex_joystick/lib/python3.10/site-packages/ex_joystick-1.0-py3.10.egg-info
+[3.987s] running install_scripts
+[4.005s] Installing map_joy script to /home/molyo/EEL4842/eel4842_ws/install/ex_joystick/lib/ex_joystick
+[4.005s] writing list of installed files to '/home/molyo/EEL4842/eel4842_ws/build/ex_joystick/install.log'
+[4.078s] Invoked command in '/home/molyo/EEL4842/eel4842_ws/src/ex_joystick' returned '0': BYOBU_DATE=%Y-%m-%d PYTHONPATH=/home/molyo/EEL4842/eel4842_ws/build/ex_joystick/prefix_override:/home/molyo/EEL4842/eel4842_ws/install/ex_joystick/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/ex_joystick build --build-base /home/molyo/EEL4842/eel4842_ws/build/ex_joystick/build install --record /home/molyo/EEL4842/eel4842_ws/build/ex_joystick/install.log --single-version-externally-managed

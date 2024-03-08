@@ -32,7 +32,7 @@ class MapPointCloud(Node):
 
             calc_point.x = r * math.cos((angle_inc * i) - math.pi)
             calc_point.y = r * math.sin((angle_inc * i) - math.pi)
-            calc_point.z = float(10)
+            calc_point.z = float(0)
 
             xy_points[i] = calc_point
 
