@@ -1,0 +1,19 @@
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    return LaunchDescription([
+        Node(
+            package='wall_following',
+            executable='wall_follow',
+            output='screen',
+            emulate_tty=True,
+            parameters = [
+                {'kp': 0.4},
+                {'ki': 0.01},
+                {'kd': 0.1},
+                {'history': 1},
+                {'beam_angle': 40},
+            ]
+        ),
+    ])

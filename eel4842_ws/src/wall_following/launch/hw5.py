@@ -1,5 +1,6 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
+import math
 
 def generate_launch_description():
     return LaunchDescription([
@@ -9,11 +10,11 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,
             parameters = [
-                {'kp': 0.5},
-                {'ki': 0.2},
-                {'kd': 0.0},
-                {'history': 40},
-                {'beam_angle': 20},
+                {'Kp': 0.4},
+                {'Ki': 0.01},
+                {'Kd': 0.1},
+                {'Speed': 70.0},
+                {'Angle_Limit', 45 * (math.pi / 180)}
             ]
         ),
     ])

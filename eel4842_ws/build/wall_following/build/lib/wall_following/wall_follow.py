@@ -94,7 +94,7 @@ class JoyToAckNode(Node):
         #Figure out variables associated with PID.
         dt = msg.scan_time
         sum_ek = sum(self.prev_errors)
-        print(f'current error: {self.curr_error_index}, history: {history}')
+        print(f'current error: {self.curr_error_index % history}, history: {history}')
         self.prev_errors[self.curr_error_index % history] = e
         self.curr_error_index += 1
 
@@ -133,7 +133,7 @@ class JoyToAckNode(Node):
         self.prev_uk = self.uk
 
         print(f'uk: {self.uk}, delta_uk: {self.diff_uk}')
-        print(f'previous errors:{self.ek_prev}\n')
+        print(f'previous errors:{self.prev_errors}\n')
         print(f'Steering angle: {(math.pi/4) * self.uk} radians ({((math.pi/4) *self.uk)*(180/math.pi)} degrees)')
 
         #limits for steering angle are -45 to 45
