@@ -1,204 +1,191 @@
-import rclpy
-import math
+''' Author:         Dewayne Roxborough
+    Date:           March 1, 2024 
+    Subject:        EML4842 | HW6 - PID wall following
+    Description:    Dive along wall while maintaining 1 meter distance from the wall
 
-from rclpy.node import Node
-from rclpy.clock import Clock
+'''
+import random as rnd;
+import rclpy;
+import math;
 
-from std_msgs.msg import Float32MultiArray
-from std_msgs.msg import Int32MultiArray
-from std_msgs.msg import Float32
-from ackermann_msgs.msg import AckermannDriveStamped
-from sensor_msgs.msg import Joy
-from sensor_msgs.msg import LaserScan
+from rclpy.node import Node;
+from sensor_msgs.msg import Joy;
+from sensor_msgs.msg import LaserScan;
+from ackermann_msgs.msg import AckermannDriveStamped;
+from std_msgs.msg import Float32;
+from std_msgs.msg import Int32
 
-class JoyToAckNode(Node):
-    '''
-    Converts joystick values to ackermann heading to be sent to the vehicle for its speed and steering angle.
-    '''
+class WallFollowNode(Node):
+
     def __init__(self):
-        super().__init__('map_joy_to_ack')       
-        self.subJoy = self.create_subscription(Joy, 'joy', self.joy_callback, 10)
-        self.subLidar = self.create_subscription(LaserScan, 'scan', self.lidar_callback, 10)
+
+        super().__init__("wall_follow");
+
+    #   Define Initial Variables
+    #   ************************    
+        self.theta_fixed = 45;      # Angle used for d2
+        self.theta90_index = -1;    # 90 degree index of lidar for d1, updated after each message received
+        self.wall_distance = 1.0;   # Distance to maintain from wall in meters
+        self.current_msg = None;    # Will store current message from lidar scan
+        self.dt   = 0;
+        self.declare_parameter('Kp', 0.8);
+        self.declare_parameter('Kd', 1.0);
+        self.declare_parameter('Ki', 2.0);
+        self.declare_parameter('Speed', 70);
+        self.declare_parameter('Angle_Limit', (math.pi/4))
+        self.e_k  = 0;
+        self.e_k1 = 0;
+        self.e_k2 = 0;
+        
+        self.Is_dValsValid = False;
+
+        #self.Kp = 0.8
+        #self.Kd = 0
+        #self.Ki = 0
+        #self.Speed = 70
+        #self.Limit = math.pi/4
+
+        self.Kp = self.get_parameter('Kp').value
+        self.Kd = self.get_parameter('Kd').value
+        self.Ki = self.get_parameter('Ki').value
+        self.Speed = self.get_parameter('Speed').value
+        self.Limit = self.get_parameter('Angle_Limit').value
+
+        #self.subscription1  = self.create_subscription(msg_type = Joy, topic = "joy", callback = self.data_received1, qos_profile = 1);
+        self.subscription2  = self.create_subscription(msg_type = LaserScan, topic = "scan", callback = self.do_follow_wall, qos_profile = 1);
         self.publisher_ = self.create_publisher(AckermannDriveStamped, 'vehicle_command_ackermann', 10)
-        self.publish_error = self.create_publisher(Float32, 'error', 10)
-        self.publish_pval = self.create_publisher(Float32, 'pval', 10)
-        self.publish_ival = self.create_publisher(Float32, 'ival', 10)
-        self.publish_dval = self.create_publisher(Float32, 'dval', 10)
-        self.publish_uk = self.create_publisher(Float32, 'uk', 10)
-        self.publish_diff_uk = self.create_publisher(Float32, 'diff_uk', 10)
 
-        #Declare parameters for use with launch file.
-        self.declare_parameter('kd', 0.0)
-        self.declare_parameter('ki', 0.0)
-        self.declare_parameter('kp', 1.0)
-        self.declare_parameter('history', 45)
-        self.declare_parameter('beam_angle', 10)
-        self.declare_parameter('deadband', 0)
+#   INITIAL CALLBACK FUNCTION FROM LIDAR SCAN - IT ALSO UPDATES CLASS PROPERTIES:
+#   *****************************************************************************
+    def do_follow_wall(self, msg = LaserScan):
+        self.current_msg = msg;
+        dwall = self.get_dWall();
+        err = dwall - self.wall_distance;    # Also detects invalid d1 or d2 values
 
-        self.prev_errors = [0 for i in range(self.get_parameter('history').value)]
-        self.curr_error_index = 0
-        self.ek_prev = 0
-        self.prev_uk = None
-        self.diff_uk = None
-        self.uk = None
-        self.autonomous = False
+        #self.get_logger().info(f'self.Is_dValsValid = {self.Is_dValsValid}');
+        if (self.Is_dValsValid):
 
-    def lidar_callback(self,msg):
-        #Determine some fixed constants from the message.
-        theta = msg.angle_increment
-        smallest_range = msg.range_min
-        largest_range = msg.range_max
-
-        #Get the PID gain parameter values.
-        kd = self.get_parameter('kd').value
-        ki = self.get_parameter('ki').value
-        kp = self.get_parameter('kp').value
-        beam_angle = self.get_parameter('beam_angle').value
-        deadband = self.get_parameter('deadband').value
+            self.dt   = msg.time_increment;
+            self.e_k2 = self.e_k1;
+            self.e_k1 = self.e_k;
+            self.e_k  = err;
         
-        #Get the PID storage history
-        history = self.get_parameter('history').value
+        #   Get du or u (angle to sent to car)
+        #   **********************************
+            u = self.get_u();
+            du = self.get_du();
 
-        print(f'Running node with kp = {kp}, ki = {ki}, kd = {kd}, history = {history}, beam_angle = {beam_angle}.')
-        
-        #Calculate the index of the first beam (90 deg from initial beam = to the right)
-        d1_index = int(round((math.pi/2)/(theta),0))
+            # TO DO... CODE: use either of the values above to steer the car
 
-        #Use the index of the next immediate beam to use the angle increment as the angle.
-        d2_index = d1_index + beam_angle
+            msg_send = AckermannDriveStamped()
 
-        #Get the distances of these beams (if the data is valid).
-        d1 = msg.ranges[d1_index] if (msg.ranges[d1_index] >= smallest_range and msg.ranges[d1_index] <= largest_range) else None
-        d2 = msg.ranges[d2_index] if (msg.ranges[d2_index] >= smallest_range and msg.ranges[d1_index] <= largest_range) else None
+            msg_send.drive.speed = float(self.Speed)
+            msg_send.drive.steering_angle = float(u)
+            self.publisher_.publish(msg_send)
 
-        #Print a message if the data is invalid.
-        if d1 == None or d2 == None:
-            print('Wall is too close/far!')
-            return
-        
-        #Otherwise, calculate the horizontal distance between the two beams (d3) and then use that for dwall.
-        d3 = math.sqrt(d1**2 + d2**2 - (2 * d1 * d2 * math.cos(theta * beam_angle)))
+            self.get_logger().info(f'err = {err}, dt = {self.dt}, e_k = {self.e_k}, e_k1 = {self.e_k1}, e_k2 = {self.e_k2}');
+            self.get_logger().info(f'u = {u}, du = {du}, dWall = {dwall}');
 
-        print(f'd1: {d1}\nd2: {d2}\nd3: {d3}\ntheta: {theta}\n')
-
-        phi = math.asin((d1/d3)*math.sin(theta * beam_angle))
-        dw = d1 * math.cos(90 - theta - phi)
-        e = dw - 1
-
-        print(f'phi: {phi}\ndwall: {dw}\nerror: {e}\n')
-
-        if math.isnan(phi) or math.isnan(dw) or math.isnan(e):
-            print('NAN Values detected! Scan will be discarded')
-            return
-
-        #Figure out variables associated with PID.
-        dt = msg.scan_time
-        sum_ek = sum(self.prev_errors)
-        print(f'current error: {self.curr_error_index % history}, history: {history}')
-        self.prev_errors[self.curr_error_index % history] = e
-        self.curr_error_index += 1
-
-        #Calculate the control input.
-        pval = (kp * e)
-        ival = (ki * sum_ek * dt)
-        dval = (kd * ((e - self.ek_prev)/dt))
-        self.uk = pval + ival + dval
-        self.ek_prev = e
-
-        #Publish PID Values for use with rqt graphing
-        temp = Float32()
-        temp.data = e
-        self.publish_error.publish(temp)
-
-        temp.data = self.uk
-        self.publish_uk.publish(temp)
-
-        temp.data = pval
-        self.publish_pval.publish(temp)
-
-        temp.data = ival
-        self.publish_ival.publish(temp)
-
-        temp.data = dval
-        self.publish_dval.publish(temp)
-
-        #Calculate difference in control input if valid.
-
-        if (self.prev_uk != None):
-            self.diff_uk = self.uk - self.prev_uk
-            
-            temp.data = self.diff_uk
-            self.publish_diff_uk.publish(temp)
-
-        self.prev_uk = self.uk
-
-        print(f'uk: {self.uk}, delta_uk: {self.diff_uk}')
-        print(f'previous errors:{self.prev_errors}\n')
-        print(f'Steering angle: {(math.pi/4) * self.uk} radians ({((math.pi/4) *self.uk)*(180/math.pi)} degrees)')
-
-        #limits for steering angle are -45 to 45
-        #limits for speed is 70 to 100
-        #Anything between -0.05 and 0.05 is 0 (to keep the car stationary).
-
-        if (not self.autonomous):
-            return
-
-        msg_send = AckermannDriveStamped()
-
-        if (abs(self.diff_uk - deadband) <= deadband):
-            msg_send.drive.steering_angle = -(math.pi/4) * self.diff_uk
+        #   Possible block format to steer car
+        #   **********************************
+            if (err > 0):
+                i = 0; # Turn right
+            elif (err < 0):
+                i = 1; # Turn left
         else:
-            msg_send.drive.steering_angle = -(math.pi/4) * self.prev_uk
-            
-    
-        print(f'Steering angle: {msg_send.drive.steering_angle} radians ({msg_send.drive.steering_angle * (180 / math.pi)} degrees)')
-
-        speed = 10
-    
-        #Only calculate and send speed if it is above a cutoff (defined as 0.05).
-        msg_send.drive.speed = float(speed)
-        print(f'Speed: {msg_send.drive.speed}')
-
-        #Publish the message with steering and (maybe) speed.
-        self.publisher_.publish(msg_send)
-
-    def joy_callback(self, msg):
-        if (msg.buttons[0] == 1):
-            self.autonomous = True
-            return
-        else:
-            self.autonomous = False
-
-        msg_send = AckermannDriveStamped()
-        msg_send.drive.steering_angle = float((msg.axes[0] * math.pi/4))
-
-        #print(f'Steering angle: {msg_send.drive.steering_angle} radians ({msg_send.drive.steering_angle * (180 / math.pi)} degrees)')
-        speed = abs(msg.axes[4])
+            self.get_logger().info(f'Either d1 or d2 is invalid.  Commands ignored.');
         
-        #Only calculate and send speed if it is above a cutoff (defined as 0.05).
-        if speed >= 0.05:
 
-            velocity_sign = 1
-            if msg.axes[4] < 0:
-                velocity_sign = -1
+    def get_u(self):
+        kp   = self.Kp;
+        kd   = self.Kd;
+        ki   = self.Ki;
+        dt   = self.dt;
+        e_k  = self.e_k;
+        e_k1 = self.e_k1;
+        u    = kp*e_k + ki*e_k*dt + kd*(e_k - e_k1)/dt;
 
-            msg_send.drive.speed = velocity_sign * float(((30 * speed)/0.95)+70)
+        if (u < -self.Limit):
+            u = -self.Limit;
+        elif (u > self.Limit):
+            u = self.Limit;
+        
+        return u;
 
-        #Publish the message with steering and (maybe) speed.
-        self.publisher_.publish(msg_send)
+
+    def get_du(self):
+        kp   = self.Kp;
+        kd   = self.Kd;
+        ki   = self.Ki;
+        dt   = self.dt;
+        e_k  = self.e_k;
+        e_k1 = self.e_k1;
+        e_k2 = self.e_k2;
+        du   = kp*(e_k - e_k1) + ki*e_k*dt + kd*(e_k - 2*e_k1 + e_k2)/dt;
+
+        if (du < -self.Limit):
+            du = -self.Limit;
+        elif (du > self.Limit):
+            du = self.Limit;
+        
+        return du;
+
+
+    def get_dWall(self):
+        min     = self.current_msg.angle_min;
+        inc     = self.current_msg.angle_increment;
+        rngs    = self.current_msg.ranges;
+        th_d2_i = self.get_theta_i(self.current_msg, self.theta_fixed);     # Get the index for the d2 angle
+        self.theta90_index = self.get_theta_i(self.current_msg, 90);        # Get the index for the d1 angle @ 90 degrees
+        d1      = self.get_d_vals(rngs, min, inc, self.theta90_index);
+        d2      = self.get_d_vals(rngs, min, inc, th_d2_i);
+
+        self.get_logger().info(f'd1 = {d1[0]}, d2 = {d2[0]}, th_d1_i = {self.theta90_index}, th_d2_i = {th_d2_i}');
+
+        if not(abs(d1[0]) > 0 and abs(d2[0]) > 0):                          # Update valid flag and return default (null) value if not valid
+            self.Is_dValsValid = False;
+            return None;
+        else:
+            self.Is_dValsValid = True;
+
+        d3      = self.get_d3(d1[0], d2[0], self.theta_fixed);
+        cos_phi = (d2[1]-d1[1])/d3;
+
+        self.get_logger().info(f'd3 = {d3}, cos_phi = {cos_phi}');
+
+        dwall   = d1[0]*cos_phi;
+        return  dwall;
+
+
+    def get_theta_i(self, msg = LaserScan, theta = Float32):
+        rngs = msg.ranges;
+        for i in range(len(rngs)):
+            th = (msg.angle_min + (i)*msg.angle_increment)*180/math.pi;
+            if ((th < (theta + 0.3)) and (th >= theta)):
+                return i;
+        return 0;                                                           # Value return if nothing found
+    
+
+    def get_d3(self, d1 = Float32, d2 = Float32, theta = Float32):
+        d3 = math.sqrt(d1**2 + d2**2 - 2*d1*d2*math.cos(theta));
+        return d3;
+
+#   Return the d1 or d2 distance from wall based on the index of a theta value:
+#   ***************************************************************************
+    def get_d_vals(self, rngs = [], angle_min = Float32, angle_inc = Float32, theta_i = Int32):
+        th = (angle_min + theta_i*angle_inc)*180/math.pi;
+        x = rngs[theta_i]*math.cos(th);
+        y = rngs[theta_i]*math.sin(th);
+        d = rngs[theta_i];
+        return [d, x, y];
 
 def main(args=None):
-    rclpy.init(args=args)
 
-    ack_pub = JoyToAckNode()
-    
-    rclpy.spin(ack_pub)
+    rclpy.init(args=args);
+    node_template = WallFollowNode();
+    rclpy.spin(node_template);
+    node_template.destroy_node();
+    rclpy.shutdown();
 
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    ack_pub.destroy_node()
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    main();

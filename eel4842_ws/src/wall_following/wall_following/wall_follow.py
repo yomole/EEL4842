@@ -13,6 +13,7 @@ from sensor_msgs.msg import Joy;
 from sensor_msgs.msg import LaserScan;
 from ackermann_msgs.msg import AckermannDriveStamped;
 from std_msgs.msg import Float32;
+from std_msgs.msg import Int32
 
 class WallFollowNode(Node):
 
@@ -31,11 +32,18 @@ class WallFollowNode(Node):
         self.declare_parameter('Kd', 1.0);
         self.declare_parameter('Ki', 2.0);
         self.declare_parameter('Speed', 70);
-        self.declare_parameter('Angle_Limit', math.pi/4)
+        self.declare_parameter('Angle_Limit', (math.pi/4))
         self.e_k  = 0;
         self.e_k1 = 0;
         self.e_k2 = 0;
+        
         self.Is_dValsValid = False;
+
+        #self.Kp = 0.8
+        #self.Kd = 0
+        #self.Ki = 0
+        #self.Speed = 70
+        #self.Limit = math.pi/4
 
         self.Kp = self.get_parameter('Kp').value
         self.Kd = self.get_parameter('Kd').value
@@ -45,7 +53,7 @@ class WallFollowNode(Node):
 
         #self.subscription1  = self.create_subscription(msg_type = Joy, topic = "joy", callback = self.data_received1, qos_profile = 1);
         self.subscription2  = self.create_subscription(msg_type = LaserScan, topic = "scan", callback = self.do_follow_wall, qos_profile = 1);
-
+        self.publisher_ = self.create_publisher(AckermannDriveStamped, 'vehicle_command_ackermann', 10)
 
 #   INITIAL CALLBACK FUNCTION FROM LIDAR SCAN - IT ALSO UPDATES CLASS PROPERTIES:
 #   *****************************************************************************
@@ -72,7 +80,8 @@ class WallFollowNode(Node):
             msg_send = AckermannDriveStamped()
 
             msg_send.drive.speed = float(self.Speed)
-            msg_send.drive.steering_angle = float(self.u)
+            msg_send.drive.steering_angle = float(u)
+            self.publisher_.publish(msg_send)
 
             self.get_logger().info(f'err = {err}, dt = {self.dt}, e_k = {self.e_k}, e_k1 = {self.e_k1}, e_k2 = {self.e_k2}');
             self.get_logger().info(f'u = {u}, du = {du}, dWall = {dwall}');

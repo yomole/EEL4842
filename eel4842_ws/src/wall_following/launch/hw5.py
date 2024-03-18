@@ -1,6 +1,5 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-import math
 
 def generate_launch_description():
     return LaunchDescription([
@@ -14,7 +13,7 @@ def generate_launch_description():
                 {'Ki': 0.01},
                 {'Kd': 0.1},
                 {'Speed': 70.0},
-                {'Angle_Limit', 45 * (math.pi / 180)}
+                {'Angle_Limit', 45.0},
             ]
         ),
     ])
